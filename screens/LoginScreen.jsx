@@ -6,18 +6,45 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
 } from "react-native";
-import React, { useState } from "react";
-import { auth, createUserWithEmailAndPassword } from "../firebase";
+import React, { useEffect, useState } from "react";
+import {
+  auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "../firebase";
+import { useNavigation } from "@react-navigation/native";
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigation = useNavigation();
 
-  const handleLogin = (e) => {
-    //Retrieve user from Firebase and log them in
-    e.preventDefault();
-    setEmail("");
-    setPassword("");
+  const handleLogin = async (e) => {
+    try {
+      e.preventDefault();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      console.log("Logged in with: ", user.email);
+      checkIfLoggedIn();
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const checkIfLoggedIn = () => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigation.navigate("Home");
+      }
+    });
+    return unsubscribe;
   };
 
   const handleRegister = async (e) => {
@@ -31,11 +58,13 @@ const LoginScreen = () => {
       const user = userCredential.user;
       console.log(user.email);
       console.log(user.uid);
+      checkIfLoggedIn();
       setEmail("");
       setPassword("");
     } catch (error) {
       const errorCode = error.code;
       const errorMessage = error.message;
+      alert(errorMessage);
       console.log(errorCode, errorMessage);
     }
   };
