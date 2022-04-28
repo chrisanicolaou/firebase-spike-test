@@ -14,11 +14,19 @@ const HomeScreen = () => {
       alert(error.message);
     }
   };
+
+  const handleCreateHobby = () => {
+    navigation.navigate("CreateHobbyScreen");
+  };
+
   return (
     <View>
       <Text>Email: {auth.currentUser?.email}</Text>
       <TouchableOpacity onPress={handleSignOut}>
         <Text>Sign Out</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleCreateHobby}>
+        <Text>Create Hobby</Text>
       </TouchableOpacity>
     </View>
   );
